@@ -18,6 +18,7 @@ pipeline {
                         // Test Code
                         stage("Test ${s}") {
                             sh "echo Running tests for ${s}..."
+                            sh "npm run test --workspace=${s}"
                         }
 
                         // Build Image Docker 
