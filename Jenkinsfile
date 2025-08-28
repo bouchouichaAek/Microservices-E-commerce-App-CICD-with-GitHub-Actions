@@ -12,7 +12,6 @@ pipeline {
 
                     for (s in services) {
                         def version = sh(script: "node -p 'require(\"./services/${s}/package.json\").version'", returnStdout: true).trim()
-
                         echo "Processing ${s}..."
 
                         // Test Code
@@ -20,7 +19,6 @@ pipeline {
                             sh "echo Running tests for ${s}..."
                             sh "cd services/${s} && npm i"
                             sh "npm run test --passWithNoTests --workspace=./services/${s}"
-
                         }
 
                         // Build Image Docker 
@@ -42,10 +40,10 @@ pipeline {
             }
         }
     }
-    // post {
-    //     always {
-    //         cleanWs()
-    //     }
-    // }
+    post {
+        always {
+            cleanWs()
+        }
+    }
 
 }
