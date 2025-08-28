@@ -10,6 +10,7 @@ pipeline {
                     for (s in services) {
                         echo "Processing ${s}..."
 
+                        
                         // Test Code
                         stage("Test ${s}") {
                             sh "echo Running tests for ${s}..."
