@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        DOCKER_USERNAME = credentials('docker')  // معرف في Jenkins Credentials
+        DOCKER_USERNAME = credentials('docker-username')  // معرف في Jenkins Credentials
         // DOCKER_PASSWORD = credentials('docker-password')
     }
 
