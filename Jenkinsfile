@@ -25,9 +25,9 @@ pipeline {
                         stage("Build & Push Docker Image ${s}") {
                             sh "echo login to Docker registry..."
                             sh "echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin"
-                            sh "docker build -t ${s}:${version} services/${s}"
+                            sh "docker build -t bouchouichaaek97/${s}:${version} services/${s}"
                             sh "echo Pushing ${s} to Docker registry..."
-                            sh "docker push ${s}:${version}" 
+                            sh "docker push bouchouichaaek97/${s}:${version}" 
                         }
 
                         // Deploy Service
