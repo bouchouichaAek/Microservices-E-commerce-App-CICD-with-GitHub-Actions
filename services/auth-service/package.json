@@ -8,7 +8,9 @@
     "dev": "nodemon index.js",
     "build": "echo 'No build step required'",
     "lint": "eslint .",
-    "test": "jest"
+    "test": "jest",
+    "preversion": "npm test",
+    "postversion": "git tag -d v$(node -p -e \"require('./package.json').version\") && git tag user-$(node -p -e \"require('./package.json').version\") && git push origin user-$(node -p -e \"require('./package.json').version\")"
   },
   "type": "module",
   "author": "Abdelkader Bouchouicha",
