@@ -8,7 +8,7 @@
     "dev": "nodemon index.js",
     "build": "echo 'No build step required'",
     "lint": "eslint .",
-    "test": "jest --passWithNoTests",
+    "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "preversion": "npm test",

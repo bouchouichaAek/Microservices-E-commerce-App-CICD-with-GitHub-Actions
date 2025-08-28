@@ -19,7 +19,7 @@ pipeline {
                         stage("Test ${s}") {
                             sh "echo Running tests for ${s}..."
                             sh "cd services/${s} && npm i"
-                            sh "npm run test --workspace=./services/${s}"
+                            sh "npm run test --passWithNoTests --workspace=./services/${s}"
 
                         }
 
