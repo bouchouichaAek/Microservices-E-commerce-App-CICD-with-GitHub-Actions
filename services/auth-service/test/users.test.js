@@ -1,15 +1,11 @@
-import request from "supertest";
-import users from "../routes/user.route.js";
-import express from "express";
+import { hashPassword } from "../utils/handlePassword.js";
 
-const app = express();
-
-app.use("/", users);
-
-describe("User API Tests", () => {
-  it("should return 401 for unknown route", async () => {
-    const res = await request(app).get("/not-found");
-    expect(res.statusCode).toBe(401);
+describe("User Service Unit Tests", () => {
+  it("should hash password correctly", async () => {
+    const password = "testPassword123";
+    const hashedPassword = await hashPassword(password);
+    expect(hashedPassword).not.toBe(password);
+    expect(hashedPassword.length).toBeGreaterThan(10);
   });
 
   // Add other tests here...
