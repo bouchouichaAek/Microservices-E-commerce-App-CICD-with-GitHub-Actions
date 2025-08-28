@@ -1,6 +1,6 @@
 {
   "name": "auth-service",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "This a Authentication Service For E-Commerce App",
   "main": "index.js",
   "scripts": {
@@ -9,6 +9,8 @@
     "build": "echo 'No build step required'",
     "lint": "eslint .",
     "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "preversion": "npm test",
     "postversion": "git tag -d v$(node -p -e \"require('./package.json').version\") && git tag $(node -p -e \"require('./package.json').version\") && git push origin $(node -p -e \"require('./package.json').version\")"
   },
@@ -25,7 +27,11 @@
     "sequelize": "^6.37.7"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.3",
+    "@babel/preset-env": "^7.28.3",
+    "babel-jest": "^30.0.2",
     "jest": "^30.0.2",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "supertest": "^7.1.4"
   }
 }

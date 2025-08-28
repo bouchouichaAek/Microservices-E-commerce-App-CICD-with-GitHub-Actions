@@ -28,7 +28,7 @@ app.listen(port, async () => {
     "The table for the Auth model was just (re)created! Successfully !"
   );
 
-  console.log(`Auth service v1.1.0 listening On port ${port}!`);
+  console.log(`Auth service v1.0.1 listening On port ${port}!`);
 });
 
 process.on("SIGTERM", async () => {
