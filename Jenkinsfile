@@ -4,7 +4,7 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'echo "Building the project..."' 
-                sh 'ls' 
+                sh 'ls services/' 
             }
         }
         stage('Test') {
