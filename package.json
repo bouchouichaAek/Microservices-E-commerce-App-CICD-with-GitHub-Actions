@@ -1,0 +1,22 @@
+{
+  "name": "microservices-e-commerce-app",
+  "version": "1.0.0",
+  "description": "Microservices E-commerce App CI/CD with GitHub Actions",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bouchouichaAek/Microservices-E-commerce-App-CICD-with-GitHub-Actions.git"
+  },
+  "author": "Abdelkader Bouchouicha",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bouchouichaAek/Microservices-E-commerce-App-CICD-with-GitHub-Actions/issues"
+  },
+  "homepage": "https://github.com/bouchouichaAek/Microservices-E-commerce-App-CICD-with-GitHub-Actions#readme",
+  "workspaces": [
+    "services/*"
+  ]
+}

@@ -1,0 +1,22 @@
+## 1.0.0 (2025-08-27)
+
+### Bug Fixes
+
+* update workflow triggers ([75d51d9](https://github.com/bouchouichaAek/Microservices-E-commerce-App-CI-CD-with-GitHub-Actions/commit/75d51d94c695a03e0fb104c6386416028bbec92e))
+* update workflow triggers ([e4cdb8f](https://github.com/bouchouichaAek/Microservices-E-commerce-App-CI-CD-with-GitHub-Actions/commit/e4cdb8f33734f90411f9471e5308260fcc982340))
+* update workflow triggers ([83bce71](https://github.com/bouchouichaAek/Microservices-E-commerce-App-CI-CD-with-GitHub-Actions/commit/83bce71b7380fa2f0a4354be5b67b01db0a93991))
+* update workflow triggers ([0b7c7fc](https://github.com/bouchouichaAek/Microservices-E-commerce-App-CI-CD-with-GitHub-Actions/commit/0b7c7fc782dedca1877e930a72ad494682baca9a))
+* update workflow triggers ([8d2bbfc](https://github.com/bouchouichaAek/Microservices-E-commerce-App-CI-CD-with-GitHub-Actions/commit/8d2bbfcefe7dc49467520ecb94bb9b1b43a2259a))
+* update workflow triggers ([e97ff12](https://github.com/bouchouichaAek/Microservices-E-commerce-App-CI-CD-with-GitHub-Actions/commit/e97ff123d6fae436f38fa152df07bd13794df619))
+* update workflow triggers ([f49e0ca](https://github.com/bouchouichaAek/Microservices-E-commerce-App-CI-CD-with-GitHub-Actions/commit/f49e0ca163fde36c1bc56a85d261a61b6070bc84))
+* update workflow triggers ([d12b938](https://github.com/bouchouichaAek/Microservices-E-commerce-App-CI-CD-with-GitHub-Actions/commit/d12b9385580318c15dcefb362148997490b24905))
+* update workflow triggers ([035f7b6](https://github.com/bouchouichaAek/Microservices-E-commerce-App-CI-CD-with-GitHub-Actions/commit/035f7b6f0323244b778249d9ed8b2254f3a57d37))
+* update workflow triggers ([e9cbd63](https://github.com/bouchouichaAek/Microservices-E-commerce-App-CI-CD-with-GitHub-Actions/commit/e9cbd630eafbd7ff8297d56181efd5a3a196800e))
+* update workflow triggers ([3b9f8c1](https://github.com/bouchouichaAek/Microservices-E-commerce-App-CI-CD-with-GitHub-Actions/commit/3b9f8c1089849ae9f7ebadbe5519adc98f3f739d))
+* update workflow triggers ([0671154](https://github.com/bouchouichaAek/Microservices-E-commerce-App-CI-CD-with-GitHub-Actions/commit/06711544c19037a8ae0788c9d4f2264de251378b))
+* update workflow triggers ([c140499](https://github.com/bouchouichaAek/Microservices-E-commerce-App-CI-CD-with-GitHub-Actions/commit/c140499a282621184a498f435835c54a6003ae94))
+* update workflow triggers ([2126a4d](https://github.com/bouchouichaAek/Microservices-E-commerce-App-CI-CD-with-GitHub-Actions/commit/2126a4d80fd603d66b0b72ba6f819d15990711dc))
+* update workflow triggers ([3c758b0](https://github.com/bouchouichaAek/Microservices-E-commerce-App-CI-CD-with-GitHub-Actions/commit/3c758b055528793b29b986e69e70ee69803698b7))
+* update workflow triggers ([b73922a](https://github.com/bouchouichaAek/Microservices-E-commerce-App-CI-CD-with-GitHub-Actions/commit/b73922a5aba5a198ffcc7cffe328a2c43829b31b))
+* update workflow triggers ([7fa124c](https://github.com/bouchouichaAek/Microservices-E-commerce-App-CI-CD-with-GitHub-Actions/commit/7fa124c787820b8f3f9013ca934267a902add33c))
+* update workflow triggers ([bdf6ab9](https://github.com/bouchouichaAek/Microservices-E-commerce-App-CI-CD-with-GitHub-Actions/commit/bdf6ab922f6817c9184719ec7fcd5805e7d14c41))

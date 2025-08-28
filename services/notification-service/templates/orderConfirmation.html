@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{subject}}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Reset */
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            background: #f7f7f7;
+            font-family: Arial, sans-serif;
+        }
+
+        table {
+            border-spacing: 0;
+            width: 100%;
+        }
+
+        td {
+            padding: 0;
+        }
+
+        img {
+            border: 0;
+            max-width: 100%;
+        }
+
+        /* Main styles */
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .header {
+            background: #123564;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .body {
+            padding: 20px;
+            color: #333;
+        }
+
+        .body h2 {
+            margin-top: 0;
+            color: #123564;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 20px;
+            background: #123564;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .order-summary {
+            margin-top: 20px;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .order-summary table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .order-summary th,
+        .order-summary td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+
+        .order-summary th {
+            background: #f1f1f1;
+        }
+
+        .footer {
+            background: #fafafa;
+            color: #999;
+            font-size: 12px;
+            text-align: center;
+            padding: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .body {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <table role="presentation" class="container">
+        <!-- Header -->
+        <tr>
+            <td class="header">
+                <h1>{{brandName}}</h1>
+            </td>
+        </tr>
+
+        <!-- Body -->
+        <tr>
+            <td class="body">
+                <h2>Hello {{customerName}},</h2>
+                <p>Thank you for your purchase! Your order <strong
+                        style="color: black; font-weight: bold;">{{orderId}}</strong> has been
+                    successfully
+                    processed.</p>
+
+                <div class="order-summary">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th style="text-align:center;">Qty</th>
+                                <th style="text-align:right;">Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{orderItems}}
+                        </tbody>
+                    </table>
+                </div>
+
+                <p style="margin-top:15px;"><strong>Total:</strong> {{total}} DZD</p>
+
+                <a href="{{trackingUrl}}" class="button">Track Order</a>
+            </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+            <td class="footer">
+                © {{year}} {{brandName}}. All rights reserved.<br>
+                <a href="{{unsubscribeUrl}}" style="color: #123564; text-decoration:none;">Unsubscribe</a>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

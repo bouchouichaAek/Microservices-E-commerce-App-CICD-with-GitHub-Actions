@@ -1,0 +1,39 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  - name: auth-service
+    url: http://auth-service:5000
+    routes:
+      - name: auth-routes
+        paths:
+          - /auth
+
+  - name: users-service
+    url: http://auth-service:5000
+    routes:
+      - name: users-routes
+        paths:
+          - /users
+
+  - name: product-service
+    url: http://product-service:5000
+    routes:
+      - name: product-routes
+        paths:
+          - /products
+  
+  - name: order-service
+    url: http://order-service:5000
+    routes:
+      - name: order-routes
+        paths:
+          - /order
+
+  - name: payment-service
+    url: http://payment-service:5000
+    routes:
+      - name: payment-service
+        paths:
+          - /payment
+  

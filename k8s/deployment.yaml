@@ -1,0 +1,809 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-db-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-postgres
+  template:
+    metadata:
+      labels:
+        app: auth-postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:16
+        env:
+          # Main PostgreSQL configuration
+          - name: POSTGRES_DB
+            valueFrom:
+              configMapKeyRef:
+                name: auth-config
+                key: DB_NAME
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: auth-secrets
+                key: DB_USER
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: auth-secrets
+                key: DB_PASSWORD
+          # Fix the data directory issue
+          - name: PGDATA
+            value: "/var/lib/postgresql/data/pgdata"
+          # Authentication settings
+          - name: POSTGRES_HOST_AUTH_METHOD
+            value: "md5"
+          - name: POSTGRES_INITDB_ARGS
+            value: "--auth-host=md5"
+          # Disable SSL for simplicity (development)
+          - name: POSTGRES_SSL
+            value: "off"
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        # Fixed volume name (was mysql-data for postgres!)
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+        # Removed the pg_hba.conf mount - let PostgreSQL handle default config
+        readinessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+          initialDelaySeconds: 15
+          timeoutSeconds: 2
+        livenessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c  
+              - pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+          initialDelaySeconds: 30
+          timeoutSeconds: 2
+      volumes:
+      # Fixed volume name
+      - name: postgres-data
+        persistentVolumeClaim:
+          claimName: data-pvc-auth
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      initContainers:
+      # Enhanced init container with better debugging
+      - name: wait-for-postgres
+        image: busybox:1.36
+        command: ['sh', '-c']
+        args:
+        - |
+          echo "Starting postgres connectivity check..."
+          echo "Testing service resolution..."
+          nslookup user-db-service.default.svc.cluster.local || echo "DNS resolution failed"
+          echo "Service resolved to: $(nslookup user-db-service.default.svc.cluster.local | grep 'Address:' | tail -1 | awk '{print $2}')"
+          
+          # Get the actual pod IP
+          echo "Getting pod information..."
+          kubectl get pods -l app=postgres -o wide || echo "Cannot get pod info"
+          
+          echo "Testing different connection methods..."
+          # Test 1: Full service name
+          nc -zv user-db-service.default.svc.cluster.local 5432 && echo "✓ Full service name works" || echo "✗ Full service name failed"
+          
+          # Test 2: Short service name  
+          nc -zv user-db-service 5432 && echo "✓ Short service name works" || echo "✗ Short service name failed"
+          
+          # Test 3: Service IP directly
+          SERVICE_IP=$(nslookup user-db-service.default.svc.cluster.local | grep 'Address:' | tail -1 | awk '{print $2}')
+          echo "Testing service IP: $SERVICE_IP"
+          nc -zv $SERVICE_IP 5432 && echo "✓ Service IP works" || echo "✗ Service IP failed"
+          
+          # Test 4: Wait with timeout
+          echo "Waiting for postgres with timeout..."
+          timeout=60
+          while [ $timeout -gt 0 ]; do
+            if nc -z user-db-service.default.svc.cluster.local 5432; then
+              echo "✓ PostgreSQL is ready!"
+              exit 0
+            fi
+            echo "waiting for postgres... $(date) (${timeout}s remaining)"
+            sleep 5
+            timeout=$((timeout-5))
+          done
+          
+          echo "✗ Timeout reached. PostgreSQL connection failed."
+          exit 1
+      
+      containers:
+      - name: auth-service
+        image: abdelkader97/auth-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
+        # Simplified environment variables - use PostgreSQL consistently
+        env: 
+          - name: DB_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: auth-config
+                key: DB_HOST
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: auth-secrets
+                key: DB_USER
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: auth-secrets
+                key: DB_PASSWORD
+          - name: DB_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: auth-config
+                key: DB_NAME
+          - name: DB_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: auth-config
+                key: DB_PORT
+          - name: DB_DIALECT
+            valueFrom:
+              configMapKeyRef:
+                name: auth-config
+                key: DB_DIALECT
+          - name: DB_SSL
+            valueFrom:
+              configMapKeyRef:
+                name: auth-config
+                key: DB_SSL
+          - name: JWT_SECRET 
+            valueFrom:
+              secretKeyRef:
+                name: auth-secrets
+                key: JWT_SECRET
+          - name: JWT_EXPIRY 
+            valueFrom:
+              configMapKeyRef:
+                name: auth-config
+                key: JWT_EXPIRY
+          - name: PORT
+            value: "5000"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification
+  template:
+    metadata:
+      labels:
+        app: notification
+    spec:
+      containers:
+      - name: notification-service
+        image: abdelkader97/notification-service:latest
+        ports:
+        - containerPort: 5000
+        env:
+        - name: TWILIO_ACCOUNT_SID
+          valueFrom:
+            secretKeyRef:
+              name: notification-secrets
+              key: TWILIO_ACCOUNT_SID
+        - name: TWILIO_AUTH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: notification-secrets
+              key: TWILIO_AUTH_TOKEN
+        - name: EMAIL_USER
+          valueFrom:
+            secretKeyRef:
+              name: notification-secrets
+              key: EMAIL_USER
+        - name: EMAIL_PASS
+          valueFrom:
+            secretKeyRef:
+              name: notification-secrets
+              key: EMAIL_PASS
+        - name: RABBITMQ_PROTOCOL
+          valueFrom:
+            configMapKeyRef:
+              name: notification-config
+              key: RABBITMQ_PROTOCOL
+        - name: RABBITMQ_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: notification-config
+              key: RABBITMQ_HOST
+        - name: RABBITMQ_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: notification-config
+              key: RABBITMQ_PORT
+        - name: RABBITMQ_USER
+          valueFrom:
+            secretKeyRef:
+              name: notification-secrets
+              key: RABBITMQ_USER
+        - name: RABBITMQ_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: notification-secrets
+              key: RABBITMQ_PASSWORD
+        - name: AUTH_SERVICE
+          valueFrom:
+            configMapKeyRef:
+              name: notification-config
+              key: AUTH_SERVICE
+        - name: PRODUCT_SERVICE
+          valueFrom:
+            configMapKeyRef:
+              name: notification-config
+              key: PRODUCT_SERVICE
+        - name: ORDER_SERVICE
+          valueFrom:
+            configMapKeyRef:
+              name: notification-config
+              key: ORDER_SERVICE
+        - name: PAYMENT_SERVICE
+          valueFrom:
+            configMapKeyRef:
+              name: notification-config
+              key: PAYMENT_SERVICE
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-db-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-mysql
+  template:
+    metadata:
+      labels:
+        app: order-mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        envFrom:
+          - configMapRef:
+              name: order-config
+          - secretRef:
+              name: order-secrets
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: order-secrets
+                key: MYSQL_ROOT_PASSWORD
+          - name: MYSQL_USER
+            valueFrom:
+              secretKeyRef:
+                name: order-secrets
+                key: DB_USER
+          - name: MYSQL_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: order-secrets
+                key: DB_PASSWORD
+          - name: MYSQL_DATABASE
+            valueFrom:
+              configMapKeyRef:
+                name: order-config
+                key: DB_NAME
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: mysql-data
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-data
+        persistentVolumeClaim:
+          claimName: data-pvc-order
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order
+  template:
+    metadata:
+      labels:
+        app: order
+    spec:
+      initContainers:
+      - name: wait-for-mysql
+        image: busybox:1.36
+        command: ['sh', '-c', 'until nc -z order-db-service.default.svc.cluster.local 3306; do echo "waiting for order-db..."; sleep 5; done;']
+
+      containers:
+      - name: order-service
+        image: abdelkader97/order-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
+        envFrom:
+          - configMapRef:
+              name: order-config
+          - secretRef:
+              name: order-secrets
+        env:
+          - name: DB_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: order-config
+                key: DB_HOST
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: order-secrets
+                key: DB_USER
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: order-secrets
+                key: DB_PASSWORD
+          - name: DB_NAME 
+            valueFrom:
+              configMapKeyRef:
+                name: order-config
+                key: DB_NAME
+          - name: JWT_SECRET 
+            valueFrom:
+              secretKeyRef:
+                name: order-secrets
+                key: JWT_SECRET
+          - name: JWT_EXPIRY 
+            valueFrom:
+              configMapKeyRef:
+                name: order-config
+                key: JWT_EXPIRY
+          - name: PORT
+            value: "5000"
+          - name: AUTH_SERVICE
+            valueFrom:
+              configMapKeyRef:
+                name: order-config
+                key: AUTH_SERVICE
+          - name: PRODUCT_SERVICE
+            valueFrom:
+              configMapKeyRef:
+                name: order-config
+                key: PRODUCT_SERVICE
+          - name: ORDER_SERVICE
+            valueFrom:
+              configMapKeyRef:
+                name: order-config
+                key: ORDER_SERVICE
+          - name: PAYMENT_SERVICE
+            valueFrom:
+              configMapKeyRef:
+                name: order-config
+                key: PAYMENT_SERVICE
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payment
+  template:
+    metadata:
+      labels:
+        app: payment
+    spec:
+      containers:
+      - name: payment-service
+        image: abdelkader97/payment-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
+        envFrom:
+          - configMapRef:
+              name: payment-config
+          - secretRef:
+              name: payment-secrets
+        env:
+          - name: JWT_SECRET 
+            valueFrom:
+              secretKeyRef:
+                name: payment-secrets
+                key: JWT_SECRET
+          - name: JWT_EXPIRY 
+            valueFrom:
+              configMapKeyRef:
+                name: payment-config
+                key: JWT_EXPIRY
+          - name: PORT
+            value: "5000"
+          - name: AUTH_SERVICE
+            valueFrom:
+              configMapKeyRef:
+                name: payment-config
+                key: AUTH_SERVICE
+          - name: PRODUCT_SERVICE
+            valueFrom:
+              configMapKeyRef:
+                name: payment-config
+                key: PRODUCT_SERVICE
+          - name: ORDER_SERVICE
+            valueFrom:
+              configMapKeyRef:
+                name: payment-config
+                key: ORDER_SERVICE
+          - name: PAYMENT_SERVICE
+            valueFrom:
+              configMapKeyRef:
+                name: payment-config
+                key: PAYMENT_SERVICE
+          - name: CHECKOUT_URL
+            valueFrom:
+              configMapKeyRef:
+                name: payment-config
+                key: CHECKOUT_URL
+          - name: CHARGILY_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: payment-secrets
+                key: CHARGILY_API_KEY
+          - name: CHARGILY_API_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: payment-secrets
+                key: CHARGILY_API_SECRET
+          - name: CHARGILY_API_MODE
+            valueFrom:
+              configMapKeyRef:
+                name: payment-config
+                key: CHARGILY_API_MODE
+          - name: RABBITMQ_PROTOCOL
+            valueFrom:
+              configMapKeyRef:
+                name: payment-config
+                key: RABBITMQ_PROTOCOL
+          - name: RABBITMQ_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: payment-config
+                key: RABBITMQ_HOST
+          - name: RABBITMQ_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: payment-config
+                key: RABBITMQ_PORT
+          - name: RABBITMQ_USER
+            valueFrom:
+              secretKeyRef:
+                name: payment-secrets
+                key: RABBITMQ_USER
+          - name: RABBITMQ_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: payment-secrets
+                key: RABBITMQ_PASSWORD
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-db-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product-postgre
+  template:
+    metadata:
+      labels:
+        app: product-postgre
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:16
+        env:
+          # Main PostgreSQL configuration
+          - name: POSTGRES_DB
+            valueFrom:
+              configMapKeyRef:
+                name: product-config
+                key: DB_NAME
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: product-secrets
+                key: DB_USER
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: product-secrets
+                key: DB_PASSWORD
+          # Fix the data directory issue
+          - name: PGDATA
+            value: "/var/lib/postgresql/data/pgdata"
+          # Authentication settings
+          - name: POSTGRES_HOST_AUTH_METHOD
+            value: "md5"
+          - name: POSTGRES_INITDB_ARGS
+            value: "--auth-host=md5"
+          # Disable SSL for simplicity (development)
+          - name: POSTGRES_SSL
+            value: "off"
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        # Fixed volume name (was mysql-data for postgres!)
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+        # Removed the pg_hba.conf mount - let PostgreSQL handle default config
+        readinessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+          initialDelaySeconds: 15
+          timeoutSeconds: 2
+        livenessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c  
+              - pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+          initialDelaySeconds: 30
+          timeoutSeconds: 2
+      volumes:
+      # Fixed volume name
+      - name: postgres-data
+        persistentVolumeClaim:
+          claimName: data-pvc-product
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product
+  template:
+    metadata:
+      labels:
+        app: product
+    spec:
+      initContainers:
+      # Enhanced init container with better debugging
+      - name: wait-for-postgres
+        image: busybox:1.36
+        command: ['sh', '-c']
+        args:
+        - |
+          echo "Starting postgres connectivity check..."
+          echo "Testing service resolution..."
+          nslookup product-db-service.default.svc.cluster.local || echo "DNS resolution failed"
+          echo "Service resolved to: $(nslookup product-db-service.default.svc.cluster.local | grep 'Address:' | tail -1 | awk '{print $2}')"
+          
+          # Get the actual pod IP
+          echo "Getting pod information..."
+          kubectl get pods -l app=postgres -o wide || echo "Cannot get pod info"
+          
+          echo "Testing different connection methods..."
+          # Test 1: Full service name
+          nc -zv product-db-service.default.svc.cluster.local 5432 && echo "✓ Full service name works" || echo "✗ Full service name failed"
+          
+          # Test 2: Short service name  
+          nc -zv product-db-service 5432 && echo "✓ Short service name works" || echo "✗ Short service name failed"
+          
+          # Test 3: Service IP directly
+          SERVICE_IP=$(nslookup product-db-service.default.svc.cluster.local | grep 'Address:' | tail -1 | awk '{print $2}')
+          echo "Testing service IP: $SERVICE_IP"
+          nc -zv $SERVICE_IP 5432 && echo "✓ Service IP works" || echo "✗ Service IP failed"
+          
+          # Test 4: Wait with timeout
+          echo "Waiting for postgres with timeout..."
+          timeout=60
+          while [ $timeout -gt 0 ]; do
+            if nc -z product-db-service.default.svc.cluster.local 5432; then
+              echo "✓ PostgreSQL is ready!"
+              exit 0
+            fi
+            echo "waiting for postgres... $(date) (${timeout}s remaining)"
+            sleep 5
+            timeout=$((timeout-5))
+          done
+          
+          echo "✗ Timeout reached. PostgreSQL connection failed."
+          exit 1
+      
+
+      containers:
+      - name: product-service
+        image: abdelkader97/product-service:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
+        envFrom:
+          - configMapRef:
+              name: product-config
+          - secretRef:
+              name: product-secrets
+        env:
+          - name: DB_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: product-config
+                key: DB_HOST
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: product-secrets
+                key: DB_USER
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: product-secrets
+                key: DB_PASSWORD
+          - name: DB_NAME 
+            valueFrom:
+              configMapKeyRef:
+                name: product-config
+                key: DB_NAME
+          - name: DB_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: product-config
+                key: DB_PORT
+          - name: DB_DIALECT
+            valueFrom:
+              configMapKeyRef:
+                name: product-config
+                key: DB_DIALECT
+          - name: DB_SSL
+            valueFrom:
+              configMapKeyRef:
+                name: product-config
+                key: DB_SSL
+          - name: JWT_SECRET 
+            valueFrom:
+              secretKeyRef:
+                name: product-secrets
+                key: JWT_SECRET
+          - name: JWT_EXPIRY 
+            valueFrom:
+              configMapKeyRef:
+                name: product-config
+                key: JWT_EXPIRY
+          - name: PORT
+            value: "5000"
+          - name: AUTH_SERVICE
+            valueFrom:
+              configMapKeyRef:
+                name: product-config
+                key: AUTH_SERVICE
+          - name: PRODUCT_SERVICE
+            valueFrom:
+              configMapKeyRef:
+                name: product-config
+                key: PRODUCT_SERVICE
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq-deployment
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:3-management
+        ports:
+        - containerPort: 5672
+        - containerPort: 15672
+        env:
+          - name: RABBITMQ_DEFAULT_USER
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq-secret
+                key: RABBITMQ_DEFAULT_USER
+          - name: RABBITMQ_DEFAULT_PASS
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq-secret
+                key: RABBITMQ_DEFAULT_PASS
+        volumeMounts:
+        - name: rabbitmq-data
+          mountPath: /var/lib/rabbitmq
+      volumes:
+      - name: rabbitmq-data
+        persistentVolumeClaim:
+          claimName: data-pvc-rabbitmq
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kong
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kong
+  template:
+    metadata:
+      labels:
+        app: kong
+    spec:
+      containers:
+        - name: kong
+          image: kong:3.6.0
+          env:
+            - name: KONG_DATABASE
+              value: "off"
+            - name: KONG_DECLARATIVE_CONFIG
+              value: /kong/kong.yaml
+            - name: KONG_PROXY_ACCESS_LOG
+              value: "/dev/stdout"
+            - name: KONG_ADMIN_ACCESS_LOG
+              value: "/dev/stdout"
+            - name: KONG_PROXY_ERROR_LOG
+              value: "/dev/stderr"
+            - name: KONG_ADMIN_ERROR_LOG
+              value: "/dev/stderr"
+            - name: KONG_ADMIN_LISTEN
+              value: "0.0.0.0:8001"
+          ports:
+            - containerPort: 8000
+            - containerPort: 8001
+          volumeMounts:
+            - name: kong-config-volume
+              mountPath: /kong
+      volumes:
+        - name: kong-config-volume
+          configMap:
+            name: kong-config
