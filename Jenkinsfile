@@ -18,6 +18,7 @@ pipeline {
                         // Test Code
                         stage("Test ${s}") {
                             sh "echo Running tests for ${s}..."
+                            sh "npm ci --workspace=./services/${s}"
                             sh "npm run test --workspace=./services/${s}"
                         }
 
@@ -40,4 +41,10 @@ pipeline {
             }
         }
     }
+    post {
+        always {
+            cleanWs()
+        }
+    }
+
 }
