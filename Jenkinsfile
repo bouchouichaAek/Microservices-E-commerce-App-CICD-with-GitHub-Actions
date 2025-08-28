@@ -14,7 +14,6 @@ pipeline {
                         stage("Test ${s}") {
                             sh "echo Running tests for ${s}..."
                             sh "ls services/${s}"
-
                         }
 
                         // Build Image Docker 
