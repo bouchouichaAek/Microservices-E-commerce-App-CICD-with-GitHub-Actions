@@ -18,8 +18,7 @@ pipeline {
                         // Test Code
                         stage("Test ${s}") {
                             sh "echo Running tests for ${s}..."
-                            sh "cd services/${s} && ls"
-                            sh "cd services/${s} && npm ci"
+                            sh "cd services/${s} && npm i"
                             sh "npm run test --workspace=./services/${s}"
 
                         }
