@@ -1,8 +1,8 @@
 pipeline {
     agent any
     environment {
-        DOCKER_USERNAME = credentials('docker-username')  // معرف في Jenkins Credentials
-        DOCKER_PASSWORD = credentials('docker-password')
+        DOCKER_USERNAME = credentials('docker')  // معرف في Jenkins Credentials
+        // DOCKER_PASSWORD = credentials('docker-password')
     }
 
     stages {
@@ -24,7 +24,7 @@ pipeline {
                         stage("Build & Push Docker Image ${s}") {
                             sh "echo Building ${s}..."
                             sh "Username is ${DOCKER_USERNAME}"
-                            sh "Password is ${DOCKER_PASSWORD}"
+                            // sh "Password is ${DOCKER_PASSWORD}"
                             // sh "docker build -t ${s}:latest services/${s}"
                             sh "echo Pushing ${s} to Docker registry..."
                             // sh "docker push ${s}:latest" // Uncomment when Docker registry is set up
