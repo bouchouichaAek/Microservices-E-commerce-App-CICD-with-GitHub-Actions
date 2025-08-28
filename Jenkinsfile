@@ -19,7 +19,6 @@ pipeline {
                         // Build Image Docker 
                         stage("Build & Push Docker Image ${s}") {
                             sh "echo Building ${s}..."
-                            sh "whoami"
                             sh "docker ps -a"
                         }
 
