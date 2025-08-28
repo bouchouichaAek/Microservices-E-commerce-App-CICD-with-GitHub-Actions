@@ -1,24 +1,12 @@
 pipeline {
     agent any
     stages {
-        stage('Build, Test & Deploy Services') {
-            steps {
-                script {
-                    def services = ["auth-service", "product-service", "order-service", "payment-service", "notification-service"]
+        stage('Build auth-service') { steps { sh 'echo Build auth-service' } }
+        stage('Test auth-service') { steps { sh 'echo Test auth-service' } }
+        stage('Deploy auth-service') { steps { sh 'echo Deploy auth-service' } }
 
-                    for (s in services) {
-                        stage("Build ${s}") {
-                            sh "echo Building ${s}..."
-                        }
-                        stage("Test ${s}") {
-                            sh "echo Testing ${s}..."
-                        }
-                        stage("Deploy ${s}") {
-                            sh "echo Deploying ${s}..."
-                        }
-                    }
-                }
-            }
-        }
+        stage('Build product-service') { steps { sh 'echo Build product-service' } }
+        stage('Test product-service') { steps { sh 'echo Test product-service' } }
+        stage('Deploy product-service') { steps { sh 'echo Deploy product-service' } }
     }
 }
