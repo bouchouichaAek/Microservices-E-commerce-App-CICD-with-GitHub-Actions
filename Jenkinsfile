@@ -10,18 +10,20 @@ pipeline {
                     for (s in services) {
                         echo "Processing ${s}..."
 
-                        // Build
-                        stage("Build ${s}") {
-                            sh "echo Building ${s}..."
-                            sh "ls services/${s}"
-                        }
-
-                        // Test
+                        // Test Code
                         stage("Test ${s}") {
                             sh "echo Running tests for ${s}..."
+                            sh "ls services/${s}"
+
                         }
 
-                        // Deploy
+                        // Build Image Docker 
+                        stage("Build & Push Docker Image ${s}") {
+                            sh "echo Building ${s}..."
+                            sh "docker ps -a"
+                        }
+
+                        // Deploy Service
                         stage("Deploy ${s}") {
                             sh "echo Deploying ${s}..."
                         }
