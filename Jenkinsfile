@@ -24,10 +24,9 @@ pipeline {
                         // Build Image Docker 
                         stage("Build & Push Docker Image ${s}") {
                             sh "echo Building ${s}..."
-                            sh "${version}"
-                            // sh "docker build -t ${s}:latest services/${s}"
+                            sh "docker build -t ${s}:${version} services/${s}"
                             sh "echo Pushing ${s} to Docker registry..."
-                            // sh "docker push ${s}:latest" // Uncomment when Docker registry is set up
+                            sh "docker push ${s}:${version}" 
                         }
 
                         // Deploy Service
