@@ -2,6 +2,7 @@ pipeline {
     agent any
     environment {
         DOCKER_CREDENTIALS = credentials('DOCKER')  
+        
     }
 
     stages {
@@ -24,10 +25,11 @@ pipeline {
                         // Build Image Docker 
                         stage("Build & Push Docker Image ${s}") {
                             sh "echo login to Docker registry..."
-                            sh "echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin"
-                            sh "docker build -t abdelkader97/${s}:v${version} services/${s}"
+                            sh "Username : $DOCKER_CREDENTIALS_USR"
+                            // sh "echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin"
+                            // sh "docker build -t $DOCKER_CREDENTIALS_USR/${s}:v${version} services/${s}"
                             sh "echo Pushing ${s} to Docker registry..."
-                            sh "docker push abdelkader97/${s}:v${version}" 
+                            // sh "docker push $DOCKER_CREDENTIALS_USR/${s}:v${version}" 
                         }
 
                         // Deploy Service
