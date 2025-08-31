@@ -62,7 +62,7 @@ def processService(serviceName) {
     echo "Processing ${serviceName}..."
 
     // Test Code
-    sh "cd services/${serviceName} && npm ci"
+    sh "cd services/${serviceName} && npm i"
     sh "npm run test --passWithNoTests --workspace=./services/${serviceName}"
 
     // Build & Push Docker Image
