@@ -3,6 +3,7 @@ pipeline {
     environment {
         DOCKER_CREDENTIALS = credentials('DOCKER')  
         DOCKER_USERNAME = credentials('DOCKER-USERNAME')  
+        KUBECONFIG = '/home/aek/.kube/config'  // Set as env var
         
     }
 
