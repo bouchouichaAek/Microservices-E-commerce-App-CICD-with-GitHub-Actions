@@ -69,10 +69,14 @@ This setup reflects a **real-world DevOps workflow** for scalable microservices 
 ├── k8s/
 │   ├── deployment.yaml
 │   ├── service.yaml
+│   ├── secret.yaml
+│   ├── kong.yaml
+│   ├── configmap.yaml
+│   └── valumes.yaml
 │
-├── .github/workflows/
-│   └── ci-cd.yml
-│
+├── docker-compose.yml
+├── Jenkinsfile
+├── package.json
 └── README.md
 
 ```
@@ -102,9 +106,11 @@ docker-compose up --build
 
 Application runs on:
 
-- User Service → `http://localhost:5001`
-- Product Service → `http://localhost:5002`
-- Order Service → `http://localhost:5003`
+- User Service → `http://localhost:5000`
+- Product Service → `http://localhost:5001`
+- Order Service → `http://localhost:5002`
+- Notification Service -> `http://localhost:5003`
+- Payment Service -> `http://localhost:5004`
 
 ---
 
@@ -118,7 +124,7 @@ Application runs on:
   4. Push images to Docker Hub.
   5. Deploy to Kubernetes cluster (using `kubectl` & GitHub secrets).
 
-Workflow file: [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml)
+Workflow file: [`Jenkinsfile`](Jenkinsfile)
 
 ---
 
