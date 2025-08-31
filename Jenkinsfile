@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         KUBECONFIG = "/var/lib/jenkins/.kube/config"
+        DOCKER_USERNAME =  credentialsId('DOCKER-USERNAME') // Replace with your Docker Hub username
     }
 
     stages {
@@ -24,13 +25,13 @@ pipeline {
                         stage("Build & Push ${s}") {
                             withCredentials([usernamePassword(credentialsId: 'DOCKER', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                                 sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
-                                sh "docker build -t $DOCKER_USER/${s}:v${version} services/${s}"
-                                sh "docker push $DOCKER_USER/${s}:v${version}"
+                                sh "docker build -t $DOCKER_USERNAME/${s}:v${version} services/${s}"
+                                sh "docker push $DOCKER_USERNAME/${s}:v${version}"
                             }
                         }
 
                         stage("Deploy ${s}") {
-                            sh "kubectl set image deployment/${s} ${s}=$DOCKER_USER/${s}:v${version} --record"
+                            sh "kubectl set image deployment/${s} ${s}=$DOCKER_USERNAME/${s}:v${version} --record"
                             sh "kubectl rollout status deployment/${s} || kubectl rollout undo deployment/${s}"
                         }
                     }
