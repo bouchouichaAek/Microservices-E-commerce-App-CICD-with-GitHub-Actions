@@ -43,7 +43,7 @@ class UserController {
 
       res.status(200).json({
         ...customResourceResponse.success,
-        version: "v1.0.1",
+        version: "v1.0.2",
         pagination: {
           totalItems: users.count,
           totalPages,
