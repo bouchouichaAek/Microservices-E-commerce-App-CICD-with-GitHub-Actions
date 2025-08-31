@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         KUBECONFIG = "/var/lib/jenkins/.kube/config"
-        DOCKER_USERNAME =  credentialsId('DOCKER-USERNAME') // Replace with your Docker Hub username
+        DOCKER_USERNAME =  credentials('DOCKER-USERNAME') // Replace with your Docker Hub username
     }
 
     stages {
