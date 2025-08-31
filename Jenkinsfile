@@ -1,54 +1,47 @@
 pipeline {
     agent any
+
     environment {
-        DOCKER_CREDENTIALS = credentials('DOCKER')  
-        DOCKER_USERNAME = credentials('DOCKER-USERNAME')  
         KUBECONFIG = "/var/lib/jenkins/.kube/config"
-        
     }
 
     stages {
-        stage('Build, Test & Deploy Services') {
+        stage('Build, Test & Deploy') {
             steps {
                 script {
                     def services = ["auth-service", "product-service", "order-service", "payment-service", "notification-service"]
 
-                    for (s in services) {
+                    services.each { s ->
                         def version = sh(script: "node -p 'require(\"./services/${s}/package.json\").version'", returnStdout: true).trim()
+
                         echo "Processing ${s}..."
 
-                        // Test Code
                         stage("Test ${s}") {
-                            sh "echo Running tests for ${s}..."
-                            sh "cd services/${s} && npm i"
+                            sh "cd services/${s} && npm ci"
                             sh "npm run test --passWithNoTests --workspace=./services/${s}"
                         }
 
-                        // Build Image Docker 
-                        stage("Build & Push Docker Image ${s}") {
-                            sh "echo login to Docker registry..."
-                            sh "echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin"
-                            sh "docker build -t $DOCKER_USERNAME/${s}:v${version} services/${s}"
-                            sh "echo Pushing ${s} to Docker registry..."
-                            sh "docker push $DOCKER_USERNAME/${s}:v${version}" 
+                        stage("Build & Push ${s}") {
+                            withCredentials([usernamePassword(credentialsId: 'DOCKER', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                                sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+                                sh "docker build -t $DOCKER_USER/${s}:v${version} services/${s}"
+                                sh "docker push $DOCKER_USER/${s}:v${version}"
+                            }
                         }
 
-                        // Deploy Service
                         stage("Deploy ${s}") {
-                            sh "echo Deploying ${s}..."
-                            sh "kubectl set image deployment/${s} ${s}=$DOCKER_USERNAME/${s}:v${version} --record"
-                            sh "kubectl rollout status deployment/${s}"
+                            sh "kubectl set image deployment/${s} ${s}=$DOCKER_USER/${s}:v${version} --record"
+                            sh "kubectl rollout status deployment/${s} || kubectl rollout undo deployment/${s}"
                         }
-              
                     }
                 }
             }
         }
     }
+
     post {
         always {
             cleanWs()
         }
     }
-
 }
