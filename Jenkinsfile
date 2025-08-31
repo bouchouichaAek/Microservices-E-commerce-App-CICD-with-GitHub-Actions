@@ -68,11 +68,11 @@ def processService(serviceName) {
     // Build & Push Docker Image
     withCredentials([usernamePassword(credentialsId: 'DOCKER', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
         sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
-        sh "docker build -t $DOCKER_USER/${serviceName}:v${version} services/${serviceName}"
-        sh "docker push $DOCKER_USER/${serviceName}:v${version}"
+        sh "docker build -t $DOCKER_USERNAME/${serviceName}:v${version} services/${serviceName}"
+        sh "docker push $DOCKER_USERNAME/${serviceName}:v${version}"
     }
 
     // Deploy Service
-    sh "kubectl set image deployment/${serviceName} ${serviceName}=$DOCKER_USER/${serviceName}:v${version} --record"
+    sh "kubectl set image deployment/${serviceName} ${serviceName}=$DOCKER_USERNAME/${serviceName}:v${version} --record"
     sh "kubectl rollout status deployment/${serviceName} || kubectl rollout undo deployment/${serviceName}"
 }
