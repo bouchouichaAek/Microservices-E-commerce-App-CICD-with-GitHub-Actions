@@ -76,7 +76,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auth-deployment
+  name: auth-service
   namespace: default
 spec:
   replicas: 1
@@ -191,7 +191,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: notification-deployment
+  name: notification-service
   namespace: default
 spec:
   replicas: 1
@@ -332,7 +332,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: order-deployment
+  name: order-service
   namespace: default
 spec:
   replicas: 1
@@ -417,7 +417,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: payment-deployment
+  name: payment-service
   namespace: default
 spec:
   replicas: 1
@@ -597,7 +597,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: product-deployment
+  name: product-service
   namespace: default
 spec:
   replicas: 1
