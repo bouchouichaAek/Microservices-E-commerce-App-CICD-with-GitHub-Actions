@@ -26,11 +26,10 @@ pipeline {
                         // Build Image Docker 
                         stage("Build & Push Docker Image ${s}") {
                             sh "echo login to Docker registry..."
-                            sh "Username : $DOCKER_USERNAME"
-                            // sh "echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin"
-                            // sh "docker build -t $DOCKER_CREDENTIALS_USR/${s}:v${version} services/${s}"
+                            sh "echo $DOCKER_CREDENTIALS_PSW | docker login -u $DOCKER_CREDENTIALS_USR --password-stdin"
+                            sh "docker build -t $DOCKER_USERNAME/${s}:v${version} services/${s}"
                             sh "echo Pushing ${s} to Docker registry..."
-                            // sh "docker push $DOCKER_CREDENTIALS_USR/${s}:v${version}" 
+                            sh "docker push $DOCKER_USERNAME/${s}:v${version}" 
                         }
 
                         // Deploy Service
