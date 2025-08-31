@@ -17,7 +17,7 @@ pipeline {
                         echo "Processing ${s}..."
 
                         stage("Test ${s}") {
-                            sh "cd services/${s} && npm ci"
+                            sh "cd services/${s} && npm i"
                             sh "npm run test --passWithNoTests --workspace=./services/${s}"
                         }
 
