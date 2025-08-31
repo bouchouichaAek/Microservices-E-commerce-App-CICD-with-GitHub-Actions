@@ -8,42 +8,18 @@ pipeline {
     }
 
     stages {
-        stage('Build, Test & Deploy Services') {
-            parallel {
-                stage('Auth Service') {
-                    steps {
-                        script {
-                            processService("auth-service")
-                        }
+        stage('Build, Test & Deploy All Services') {
+            steps {
+                script {
+                    def services = ["auth-service", "product-service", "order-service", "payment-service", "notification-service"]
+
+                    def parallelStages = services.collectEntries { serviceName ->
+                        ["${serviceName}" : {
+                            processService(serviceName)
+                        }]
                     }
-                }
-                stage('Product Service') {
-                    steps {
-                        script {
-                            processService("product-service")
-                        }
-                    }
-                }
-                stage('Order Service') {
-                    steps {
-                        script {
-                            processService("order-service")
-                        }
-                    }
-                }
-                stage('Payment Service') {
-                    steps {
-                        script {
-                            processService("payment-service")
-                        }
-                    }
-                }
-                stage('Notification Service') {
-                    steps {
-                        script {
-                            processService("notification-service")
-                        }
-                    }
+
+                    parallel parallelStages
                 }
             }
         }
