@@ -36,7 +36,6 @@ pipeline {
                         // Deploy Service
                         stage("Deploy ${s}") {
                             sh "echo Deploying ${s}..."
-                            sh "kubectl get all"
                             sh "kubectl set image deployment/${s} ${s}=$DOCKER_USERNAME/${s}:v${version} --record"
                             sh "kubectl rollout status deployment/${s}"
                         }
