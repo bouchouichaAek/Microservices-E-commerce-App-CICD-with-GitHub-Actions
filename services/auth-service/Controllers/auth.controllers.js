@@ -30,7 +30,9 @@ class AuthController {
     } catch (error) {
       console.log(error);
 
-      res.status(500).json(customResourceResponse.serverError);
+      res
+        .status(500)
+        .json({ ...customResourceResponse.serverError, error: error.errors });
     }
   }
 
@@ -50,7 +52,7 @@ class AuthController {
 
         return res
           .status(404)
-          .json({ ...customResourceResponse.success, token });
+          .json({ ...customResourceResponse.recordNotFound, token });
       }
       const isPasswordValid = await verifyPassword(password, user.password);
 
@@ -60,7 +62,7 @@ class AuthController {
 
         return res
           .status(404)
-          .json({ ...customResourceResponse.success, token });
+          .json({ ...customResourceResponse.recordNotFound, token });
       }
 
       // Here you would typically generate a JWT token and send it back

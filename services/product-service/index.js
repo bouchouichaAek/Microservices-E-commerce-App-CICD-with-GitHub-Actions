@@ -1,8 +1,6 @@
 import sequelize from "./config/database.js";
 import express from "express";
-
 import dotenv from "dotenv";
-
 import product from "./routes/product.route.js";
 import Product from "./models/product.model.js"; // Assuming you have a Product model defined
 
@@ -13,7 +11,6 @@ const port = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use("/", product);
-
 app.use("/uploads/products", express.static("uploads/products"));
 
 app.listen(port, async () => {

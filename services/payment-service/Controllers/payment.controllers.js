@@ -13,7 +13,7 @@ class PaymentController {
         Authorization: `Bearer ${process.env.CHARGILY_API_SECRET}`,
         "Content-Type": "application/json",
       },
-      body: `{"amount":${amount},"currency":"dzd","success_url":"https://my-app.com/payments/success"}`,
+      body: `{"amount":${amount},"currency":"dzd","success_url":${env.process.env.SUCCESS_URL}}`,
     };
 
     try {
