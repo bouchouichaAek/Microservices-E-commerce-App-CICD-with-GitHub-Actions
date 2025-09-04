@@ -111,6 +111,7 @@ class OrderController {
         },
       }
     );
+    console.log(response);
 
     try {
       // إنشاء الطلب
@@ -238,5 +239,3 @@ class OrderController {
 }
 
 export default OrderController;
-
-// curl.exe -i -X POST http://localhost:8001/plugins --data "name=cors" --data "config.origins=*" --data "config.methods=GET,POST,PUT,DELETE,OPTIONS"  --data "config.headers=Accept,Authorization,Content-Type,Origin" --data "config.credentials=true"

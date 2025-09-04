@@ -16,12 +16,7 @@ order.get(
 );
 order.post("/", OrderController.createOrder);
 order.put("/:id", authentication, authorization, OrderController.updateOrder);
-order.patch(
-  "/:paymentId",
-  authentication,
-  authorization,
-  OrderController.updatePaymentStatusOrder
-);
+order.patch("/:paymentId", OrderController.updatePaymentStatusOrder);
 order.delete(
   "/:id",
   authentication,

@@ -4,9 +4,9 @@ services:
   # ======================
   # Databases
   # ======================
-  users_db:
+  users_database:
     image: mysql:8
-    container_name: users_db
+    container_name: users_database
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: 123456789
@@ -20,9 +20,9 @@ services:
     networks:
       - network-01
 
-  order_db:
+  order_database:
     image: mysql:8
-    container_name: order_db
+    container_name: order_database
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: 123456789
@@ -36,9 +36,9 @@ services:
     networks:
       - network-01
 
-  product_db:
+  product_database:
     image: mysql:8
-    container_name: product_db
+    container_name: product_database
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: 123456789
@@ -78,16 +78,17 @@ services:
     ports:
       - "5000:5000"
     environment:
-      DB_HOST: users_db
+      DB_HOST: users_database
       DB_USER: authuser
       DB_PASSWORD: authpassword
       DB_NAME: users_db
+      DB_PORT: 3306
       DB_DIALECT: mysql
       JWT_SECRET: SuperSecretAPI
       JWT_EXPIRY: 24h
       PORT: 5000
     depends_on:
-      - users_db
+      - users_database
     networks:
       - network-01
 
@@ -99,10 +100,11 @@ services:
     ports:
       - "5002:5002"
     environment:
-      DB_HOST: order_db
+      DB_HOST: order_database
       DB_USER: orderuser
       DB_PASSWORD: orderpassword
       DB_NAME: order_db
+      DB_PORT: 3306
       DB_DIALECT: mysql
       JWT_SECRET: SuperSecretAPI
       JWT_EXPIRY: 24h
@@ -115,7 +117,7 @@ services:
       PAYMENT_SERVICE: payment-service:5003
       PORT: 5002
     depends_on:
-      - order_db
+      - order_database
     networks:
       - network-01
 
@@ -127,10 +129,11 @@ services:
     ports:
       - "5001:5001"
     environment:
-      DB_HOST: product_db
+      DB_HOST: product_database
       DB_USER: productuser
       DB_PASSWORD: productpassword
       DB_NAME: product_db
+      DB_PORT: 3306
       DB_DIALECT: mysql
       JWT_SECRET: SuperSecretAPI
       JWT_EXPIRY: 24h
@@ -138,9 +141,11 @@ services:
       PRODUCT_SERVICE: product-service:5001
       PORT: 5001
     depends_on:
-      - product_db
+      - product_database
     networks:
       - network-01
+    volumes:
+      - picture_data:/app/uploads
 
   payment-service:
     image: abdelkader97/payment-service:latest
@@ -163,6 +168,7 @@ services:
       PRODUCT_SERVICE: product-service:5001
       ORDER_SERVICE: order-service:5002
       PAYMENT_SERVICE: payment-service:5003
+      SUCCESS_URL: http://localhost:8081/payment-success
       PORT: 5003
     networks:
       - network-01
@@ -275,7 +281,7 @@ volumes:
   product_db_data:
   kong-db-data:
   rabbitmq_data:
-
+  picture_data:
 networks:
   network-01:
     external: true

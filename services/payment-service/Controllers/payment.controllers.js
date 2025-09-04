@@ -13,7 +13,7 @@ class PaymentController {
         Authorization: `Bearer ${process.env.CHARGILY_API_SECRET}`,
         "Content-Type": "application/json",
       },
-      body: `{"amount":${amount},"currency":"dzd","success_url":${env.process.env.SUCCESS_URL}}`,
+      body: `{"amount":${amount},"currency":"dzd","success_url": "${process.env.SUCCESS_URL}"}`,
     };
 
     try {
@@ -52,7 +52,6 @@ class PaymentController {
 
     // If the signatures match, proceed to decode the JSON payload
     const event = req.body;
-    console.log(event);
 
     // Switch based on the event type
     switch (event.type) {
