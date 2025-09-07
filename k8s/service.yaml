@@ -167,3 +167,4 @@ spec:
       name: admin
   selector:
     app: kong
+

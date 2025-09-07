@@ -1,6 +1,33 @@
 _format_version: "3.0"
 _transform: true
 
+# Global CORS plugin
+plugins:
+  - name: cors
+    config:
+      origins:
+        - "*"
+      methods:
+        - "GET"
+        - "POST"
+        - "PUT"
+        - "PATCH"
+        - "DELETE"
+        - "OPTIONS"
+      headers:
+        - "Accept"
+        - "Accept-Version"
+        - "Content-Length"
+        - "Content-MD5"
+        - "Content-Type"
+        - "Date"
+        - "X-Auth-Token"
+        - "Authorization"
+      exposed_headers:
+        - "X-Auth-Token"
+      credentials: true
+      max_age: 86400
+
 services:
   - name: auth-service
     url: http://auth-service:5000
@@ -33,7 +60,6 @@ services:
   - name: payment-service
     url: http://payment-service:5000
     routes:
-      - name: payment-service
+      - name: payment-routes
         paths:
           - /payment
-  
