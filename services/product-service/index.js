@@ -9,12 +9,10 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors());
 app.use(express.json());
-
 app.use("/", product);
-
 app.use("/uploads/products", express.static("uploads/products"));
+app.use(cors());
 app.listen(port, async () => {
   try {
     await sequelize.authenticate();

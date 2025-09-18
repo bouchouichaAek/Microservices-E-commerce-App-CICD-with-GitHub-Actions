@@ -167,38 +167,4 @@ spec:
       name: admin
   selector:
     app: kong
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: konga-ui-service
-  namespace: default
-  labels:
-    app: konga-ui
-spec:
-  type: LoadBalancer
-  ports:
-  - port: 1337
-    targetPort: 1337
-    nodePort: 31337  # External port (30000-32767 range)
-    protocol: TCP
-    name: http
-  selector:
-    app: konga-ui
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: novashop-frontend
-  namespace: default
-  labels:
-    app: novashop-frontend
-spec:
-  type: LoadBalancer
-  selector:
-    app: novashop-frontend
-  ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 80
 

@@ -6,9 +6,7 @@ plugins:
   - name: cors
     config:
       origins:
-        - "http://localhost:8082"
-        - "http://novashop-frontend.eastus.cloudapp.azure.com"
-        - "https://novashop-frontend.eastus.cloudapp.azure.com"  # Added HTTPS version
+        - "*"
       methods:
         - "GET"
         - "POST"
@@ -25,16 +23,10 @@ plugins:
         - "Date"
         - "X-Auth-Token"
         - "Authorization"
-        - "X-Requested-With"
-        - "Origin"
-        # Removed "Access-Control-Allow-Origin" - this is a response header, not request header
       exposed_headers:
         - "X-Auth-Token"
-        - "Access-Control-Allow-Origin"
-        - "Access-Control-Allow-Credentials"
       credentials: true
       max_age: 86400
-      preflight_continue: false  # Kong handles preflight, don't forward to upstream
 
 services:
   - name: auth-service
@@ -43,15 +35,6 @@ services:
       - name: auth-routes
         paths:
           - /auth
-        methods:
-          - GET
-          - POST
-          - PUT
-          - PATCH
-          - DELETE
-          - OPTIONS
-        strip_path: false
-        preserve_host: false
 
   - name: users-service
     url: http://auth-service:5000
@@ -59,15 +42,6 @@ services:
       - name: users-routes
         paths:
           - /users
-        methods:
-          - GET
-          - POST
-          - PUT
-          - PATCH
-          - DELETE
-          - OPTIONS
-        strip_path: false
-        preserve_host: false
 
   - name: product-service
     url: http://product-service:5000
@@ -75,15 +49,6 @@ services:
       - name: product-routes
         paths:
           - /products
-        methods:
-          - GET
-          - POST
-          - PUT
-          - PATCH
-          - DELETE
-          - OPTIONS
-        strip_path: false
-        preserve_host: false
   
   - name: order-service
     url: http://order-service:5000
@@ -91,15 +56,6 @@ services:
       - name: order-routes
         paths:
           - /order
-        methods:
-          - GET
-          - POST
-          - PUT
-          - PATCH
-          - DELETE
-          - OPTIONS
-        strip_path: false
-        preserve_host: false
 
   - name: payment-service
     url: http://payment-service:5000
@@ -107,12 +63,3 @@ services:
       - name: payment-routes
         paths:
           - /payment
-        methods:
-          - GET
-          - POST
-          - PUT
-          - PATCH
-          - DELETE
-          - OPTIONS
-        strip_path: false
-        preserve_host: false
