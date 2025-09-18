@@ -5,13 +5,14 @@ import dotenv from "dotenv";
 import Order from "./models/order.model.js";
 import OrderItem from "./models/orderItem.model.js";
 import order from "./routes/order.route.js";
+import cors from "cors";
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
-
+app.use(cors());
 app.use("/", order);
 
 app.listen(port, async () => {

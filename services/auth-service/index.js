@@ -5,12 +5,15 @@ import dotenv from "dotenv";
 import User from "./models/users.model.js";
 import users from "./routes/user.route.js";
 import auth from "./routes/auth.route.js";
+import cors from "cors";
+
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use(cors());
 app.use("/", auth);
 app.use("/", users);
 
