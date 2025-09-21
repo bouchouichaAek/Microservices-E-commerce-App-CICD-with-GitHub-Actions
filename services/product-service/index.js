@@ -3,7 +3,6 @@ import express from "express";
 import dotenv from "dotenv";
 import product from "./routes/product.route.js";
 import Product from "./models/product.model.js"; // Assuming you have a Product model defined
-import cors from "cors";
 dotenv.config();
 
 const app = express();
@@ -12,7 +11,6 @@ const port = process.env.PORT || 3000;
 app.use(express.json());
 app.use("/", product);
 app.use("/uploads/products", express.static("uploads/products"));
-app.use(cors());
 app.listen(port, async () => {
   try {
     await sequelize.authenticate();
