@@ -1,6 +1,6 @@
 {
   "name": "order-service",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "This is order service for E-Commerce Microservices",
   "main": "index.js",
   "scripts": {
